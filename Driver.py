@@ -139,7 +139,7 @@ class Driver:
         number4 = H(bytes(str(transaction4),'utf-8')).hexdigest()
         transaction4 = {**{"number": number4},**transaction4}
         
-        #self.txs_list.append(transaction4)
+        self.txs_list.append(transaction4)
         
         #Fifth block is same as fourth block
         #self.txs_list.append(transaction4)
@@ -183,8 +183,128 @@ class Driver:
         
         self.txs_list.append(transaction9) 
         
+        coin_input10 = []
+        coin_input10.append({'number':transaction8['number'],'output':transaction8['output'][0]})
+        coin_output10 = [{"value": 25, "pubkey": pk8.encode(encoder=HexEncoder).hex()}]
+    
+        transaction10 = {'input':coin_input10, 'output':coin_output10}
+        signed10 = sk6.sign(bytes(str(transaction10),'utf-8')).signature.hex()
+        transaction10 = {**transaction10,**{"sig": signed10}}
+        number10 = H(bytes(str(transaction10),'utf-8')).hexdigest()
+        transaction10 = {**{"number": number10},**transaction10}
         
+        self.txs_list.append(transaction10) 
         
+        coin_input11 = []
+        coin_input11.append({'number':transaction8['number'],'output':transaction8['output'][1]})
+        coin_output11 = [{"value": 25, "pubkey": pk8.encode(encoder=HexEncoder).hex()}]
+    
+        transaction11 = {'input':coin_input11, 'output':coin_output11}
+        signed11 = sk7.sign(bytes(str(transaction11),'utf-8')).signature.hex()
+        transaction11 = {**transaction11,**{"sig": signed11}}
+        number11 = H(bytes(str(transaction11),'utf-8')).hexdigest()
+        transaction11 = {**{"number": number11},**transaction11}
+        
+        self.txs_list.append(transaction11) 
+        
+        coin_input12 = []
+        coin_input12.append({'number':transaction8['number'],'output':transaction8['output'][2]})
+        coin_input12.append({'number':transaction10['number'],'output':transaction10['output'][0]})
+        coin_input12.append({'number':transaction11['number'],'output':transaction11['output'][0]})
+        coin_output12 = [{"value": 35, "pubkey": pk5.encode(encoder=HexEncoder).hex()},
+                         {"value": 40, "pubkey": pkalice.encode(encoder=HexEncoder).hex()}]
+    
+        transaction12 = {'input':coin_input12, 'output':coin_output12}
+        signed12 = sk8.sign(bytes(str(transaction12),'utf-8')).signature.hex()
+        transaction12 = {**transaction12,**{"sig": signed12}}
+        number12 = H(bytes(str(transaction12),'utf-8')).hexdigest()
+        transaction12 = {**{"number": number12},**transaction12}
+        
+        self.txs_list.append(transaction12) 
+        
+        coin_input13 = []
+        coin_input13.append({'number':transaction12['number'],'output':transaction12['output'][0]})
+        coin_input13.append({'number':transaction9['number'],'output':transaction9['output'][0]})
+        coin_output13 = [{"value": 60, "pubkey": pkbob.encode(encoder=HexEncoder).hex()}]
+    
+        transaction13 = {'input':coin_input13, 'output':coin_output13}
+        signed13 = sk5.sign(bytes(str(transaction13),'utf-8')).signature.hex()
+        transaction13 = {**transaction13,**{"sig": signed13}}
+        number13 = H(bytes(str(transaction13),'utf-8')).hexdigest()
+        transaction13 = {**{"number": number13},**transaction13}
+        
+        self.txs_list.append(transaction13) 
+        
+        coin_input14 = []
+        coin_input14.append({'number':transaction13['number'],'output':transaction13['output'][0]})
+        coin_output14 = [{"value": 60, "pubkey": pkalice.encode(encoder=HexEncoder).hex()}]
+    
+        transaction14 = {'input':coin_input14, 'output':coin_output14}
+        signed14 = skbob.sign(bytes(str(transaction14),'utf-8')).signature.hex()
+        transaction14 = {**transaction14,**{"sig": signed14}}
+        number14 = H(bytes(str(transaction14),'utf-8')).hexdigest()
+        transaction14 = {**{"number": number14},**transaction14}
+        
+        self.txs_list.append(transaction14) 
+        
+        coin_input15 = []
+        coin_input15.append({'number':transaction14['number'],'output':transaction14['output'][0]})
+        coin_input15.append({'number':transaction12['number'],'output':transaction12['output'][1]})
+        coin_output15 = [{"value": 100, "pubkey": pkcarol.encode(encoder=HexEncoder).hex()}]
+    
+        transaction15 = {'input':coin_input15, 'output':coin_output15}
+        signed15 = skalice.sign(bytes(str(transaction15),'utf-8')).signature.hex()
+        transaction15 = {**transaction15,**{"sig": signed15}}
+        number15 = H(bytes(str(transaction15),'utf-8')).hexdigest()
+        transaction15 = {**{"number": number15},**transaction15}
+        
+        self.txs_list.append(transaction15)         
+        
+        coin_input16 = []
+        coin_input16.append({'number':transaction15['number'],'output':transaction15['output'][0]})
+        coin_output16 = [{"value": 20, "pubkey": pk4.encode(encoder=HexEncoder).hex()},
+                         {"value": 20, "pubkey": pk5.encode(encoder=HexEncoder).hex()},
+                         {"value": 20, "pubkey": pk6.encode(encoder=HexEncoder).hex()},
+                         {"value": 20, "pubkey": pk7.encode(encoder=HexEncoder).hex()},
+                         {"value": 20, "pubkey": pk8.encode(encoder=HexEncoder).hex()}]
+    
+        transaction16 = {'input':coin_input16, 'output':coin_output16}
+        signed16 = skcarol.sign(bytes(str(transaction16),'utf-8')).signature.hex()
+        transaction16 = {**transaction16,**{"sig": signed16}}
+        number16 = H(bytes(str(transaction16),'utf-8')).hexdigest()
+        transaction16 = {**{"number": number16},**transaction16}
+        
+        self.txs_list.append(transaction16) 
+        
+        coin_input17 = []
+        coin_input17.append({'number':transaction16['number'],'output':transaction16['output'][0]})
+        coin_output17 = [{"value": 4, "pubkey": pk4.encode(encoder=HexEncoder).hex()},
+                         {"value": 4, "pubkey": pk5.encode(encoder=HexEncoder).hex()},
+                         {"value": 4, "pubkey": pk6.encode(encoder=HexEncoder).hex()},
+                         {"value": 4, "pubkey": pk7.encode(encoder=HexEncoder).hex()},
+                         {"value": 4, "pubkey": pk8.encode(encoder=HexEncoder).hex()}]
+    
+        transaction17 = {'input':coin_input17, 'output':coin_output17}
+        signed17 = sk4.sign(bytes(str(transaction17),'utf-8')).signature.hex()
+        transaction17 = {**transaction17,**{"sig": signed17}}
+        number17 = H(bytes(str(transaction17),'utf-8')).hexdigest()
+        transaction17 = {**{"number": number17},**transaction17}
+        
+        self.txs_list.append(transaction17) 
+        
+        coin_input18 = []
+        coin_input18.append({'number':transaction16['number'],'output':transaction16['output'][1]})
+        coin_input18.append({'number':transaction17['number'],'output':transaction17['output'][1]})
+        coin_output18 = [{"value": 12, "pubkey": pk5.encode(encoder=HexEncoder).hex()},
+                         {"value": 12, "pubkey": pk6.encode(encoder=HexEncoder).hex()}]
+    
+        transaction18 = {'input':coin_input18, 'output':coin_output18}
+        signed18 = sk5.sign(bytes(str(transaction18),'utf-8')).signature.hex()
+        transaction18 = {**transaction18,**{"sig": signed18}}
+        number18 = H(bytes(str(transaction18),'utf-8')).hexdigest()
+        transaction18 = {**{"number": number18},**transaction18}
+        
+        self.txs_list.append(transaction18)
 
         with open("transactions.json", "w") as outfile:
             json.dump(self.txs_list, outfile, indent=2)
@@ -216,18 +336,36 @@ class Driver:
         for i in range(len(transactions)-1):
             time.sleep(np.random.random(1)[0])
             self.pool.put(transactions[(i+1)])
-            
-        time.sleep(30)  
+         
+        # Wait until all valid blocks are finished processing    
+        flag = False
+        counter = 0
+        while flag == False:
+            flag = True
+            if counter > 180:
+                print("Timeout in 3 minutes")
+                break
+            for i in blockchains:
+                if len(i) != 16:
+                    flag = False
+            counter = counter+1
+            time.sleep(1)
+        
+        
         print("Stopping!")
         #for thread_id, frame in sys._current_frames().items():
         #    print('Stack for thread {}'.format(thread_id))
         #    traceback.print_stack(frame)
         #    print('')
         event.set()
+        #time.sleep(10)
+        #print(self.pool.qsize())
+
         for i in range(nodes_num):  
             with open("block_chain_"+str(i)+".json", "w") as outfile:
                 json.dump(blockchains[i], outfile, indent=2)   
-            
+        #while self.pool.qsize() > 0:
+        #    print (self.pool.get()["number"]) 
     #def initialize_transaction(self,)            
             
         

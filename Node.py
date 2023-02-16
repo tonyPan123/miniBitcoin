@@ -39,14 +39,21 @@ class Node:
                 time.sleep(1)
                 continue
             if transaction["number"] in self.failverified:
-                self.pool.put(transaction)
-                time.sleep(1)
+            #    self.pool.put(transaction)
+            #    time.sleep(1)
                 continue
             #print("start!")
+            self.pool.put(transaction)
             self.node_lock.acquire()
+            #if (self.verify_transaction(self.blockchains[self.index],len(self.blockchains[self.index]),transaction) == False):
+                #self.failverified.add(transaction["number"])
+            #    self.pool.put(transaction)
+            #    self.node_lock.release()
+            #    time.sleep(1)
+            #    continue
             block= {"tx":transaction, "prev":H(bytes(str(self.blockchains[self.index][-1:][0]),'utf-8')).hexdigest()}
             self.node_lock.release()
-            
+            #print(transaction["number"])
             nonce = 0
             front_string = str(block['tx']) + block['prev']
             while True:
@@ -57,16 +64,17 @@ class Node:
                 if int(hash_value,16) <= 0x07FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF:
                     self.node_lock.acquire()
                     
+                    block={**block, "nonce":hex(nonce), "pow":hash_value} 
                     #Verify whole block?
-                    if (self.verify_transaction(self.blockchains[self.index],len(self.blockchains[self.index]),transaction) == False):
+                    if (self.verify_block(self.blockchains[self.index],len(self.blockchains[self.index]),block) == False):
                         #print("False?")
                         self.node_lock.release()
-                        self.failverified.add(transaction["number"])
-                        self.pool.put(transaction)
+                        #self.failverified.add(transaction["number"])
+                        
                         break
                     # Whenever successfully add a new element, give blocks failed to verfied one more chance
-                    self.failverified=set()
-                    block={**block, "nonce":hex(nonce), "pow":hash_value} 
+                    #self.failverified=set()
+                    
                     self.netlock.acquire()
                     self.blockchains[self.index].append(block)
                     #Broadcast the block
@@ -77,7 +85,7 @@ class Node:
                     self.node_lock.release()
                     break
                 nonce=nonce+1
-            time.sleep(1)
+            #time.sleep(1)
  
     # Worker for check broadcasting
     def check_broadcasting(self):
@@ -93,13 +101,12 @@ class Node:
                     self.netlock.acquire()
                     self.blockchains[self.index].append(block)
                     self.netlock.release()
-                    self.failverified = set()
                 else:
                     self.check_conflicts()
                     #print(block["tx"])
                 self.node_lock.release()
             
-            time.sleep(2)
+            #time.sleep(2)
                 
 
     # Rountine for checking conflicts(forking)    
@@ -130,13 +137,12 @@ class Node:
         for i in range(len(self.blockchains[self.index])):
             if (self.blockchains[self.index][i] != gindex[i]):
                 print("Find Forking at"+str(self.index)+", fixing...\n") 
-                for j in range(len(self.blockchains[self.index])-i):
-                    self.pool.put(self.blockchains[self.index].pop()["tx"])
+                #print(self.blockchains[self.index])
+                #for j in range(len(self.blockchains[self.index])-i):
+                #    self.pool.put(self.blockchains[self.index].pop()["tx"])
                 self.netlock.acquire()    
                 self.blockchains[self.index] = gindex
-     
                 self.netlock.release()   
-                self.failverified = set()
       
     # Validate a whole blockchain
     def verify_chains(self,blockchain):
@@ -150,7 +156,8 @@ class Node:
     # Block is the one at index or to be added to the specificied index
     def verify_block(self,blockchain,index,block):
         
-        self.verify_transaction(blockchain,index,block["tx"])
+        if self.verify_transaction(blockchain,index,block["tx"]) == False:
+            return False
         prev = H(bytes(str(blockchain[index-1]),'utf-8')).hexdigest()
         if prev != block["prev"]:
             print("Prev hash in block is wrong\n")
@@ -182,6 +189,19 @@ class Node:
             print("Transaction number is bad\n")
             return False
         
+        # Check for input equal output
+        total_input=0
+        total_output=0
+        for coin_input in transaction["input"]:
+            total_input=total_input+coin_input["output"]["value"]
+        for coin_output in transaction["output"]:
+            total_output=total_output+coin_output["value"]
+        
+        if total_input != total_output:
+            print("Input is not equal to output in the transaction")
+            return False
+        
+        
         #Check for input existence and double spend
         for coin_input in transaction["input"]:
             flag = False
@@ -193,6 +213,7 @@ class Node:
                         if iter_input["number"] == coin_input["number"]:
                             if iter_input["output"]["value"] == coin_input["output"]["value"] and iter_input["output"]["pubkey"] == coin_input["output"]["pubkey"]:
                                 print("Double Spend!\n")
+                                #print(transaction["number"])
                                 return False                
                 if iter_transaction["number"] == coin_input["number"]:
                     for iter_output in iter_transaction["output"]:
