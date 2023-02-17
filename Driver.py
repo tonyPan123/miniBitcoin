@@ -18,12 +18,14 @@ import json
 import time
 
 from Node import Node
+from Bad_Node import Bad_Node
 
 class Driver:
     # Global Data Structure
     txs_list=[]
     pool=queue.Queue()
     blockchains=[]
+    
     
     def crafting_transactions(self):
         # Creating Transactions
@@ -292,6 +294,70 @@ class Driver:
         
         self.txs_list.append(transaction17) 
         
+        #Miss field
+        coin_input19 = []
+        coin_input19.append({'number':transaction16['number'],'output':transaction16['output'][0]})
+        coin_output19 = [{"value": 4, "pubkey": pk4.encode(encoder=HexEncoder).hex()},
+                         {"value": 4, "pubkey": pk5.encode(encoder=HexEncoder).hex()},
+                         {"value": 4, "pubkey": pk6.encode(encoder=HexEncoder).hex()},
+                         {"value": 4, "pubkey": pk7.encode(encoder=HexEncoder).hex()},
+                         {"value": 4, "pubkey": pk8.encode(encoder=HexEncoder).hex()}]
+    
+        transaction19 = {'output':coin_output19}
+        signed19 = sk4.sign(bytes(str(transaction19),'utf-8')).signature.hex()
+        transaction19 = {**transaction19,**{"sig": signed19}}
+        number19 = H(bytes(str(transaction19),'utf-8')).hexdigest()
+        transaction19 = {**{"number": number19},**transaction19}
+        self.txs_list.append(transaction19) 
+        
+        #Input not equal to output
+        coin_input20 = []
+        coin_input20.append({'number':transaction16['number'],'output':transaction16['output'][1]})
+        coin_input20.append({'number':transaction17['number'],'output':transaction17['output'][1]})
+        coin_output20 = [{"value": 12, "pubkey": pk5.encode(encoder=HexEncoder).hex()},
+                         {"value": 11, "pubkey": pk6.encode(encoder=HexEncoder).hex()}]
+    
+        transaction20 = {'input':coin_input20, 'output':coin_output20}
+        signed20 = sk5.sign(bytes(str(transaction20),'utf-8')).signature.hex()
+        transaction20 = {**transaction20,**{"sig": signed20}}
+        number20 = H(bytes(str(transaction20),'utf-8')).hexdigest()
+        transaction20 = {**{"number": number20},**transaction20}
+        
+        self.txs_list.append(transaction20)
+        
+        #Sinature is signed by different key
+        coin_input21 = []
+        coin_input21.append({'number':transaction16['number'],'output':transaction16['output'][1]})
+        coin_input21.append({'number':transaction17['number'],'output':transaction17['output'][1]})
+        coin_output21 = [{"value": 12, "pubkey": pk5.encode(encoder=HexEncoder).hex()},
+                         {"value": 12, "pubkey": pk6.encode(encoder=HexEncoder).hex()}]
+    
+        transaction21 = {'input':coin_input21, 'output':coin_output21}
+        signed21 = sk6.sign(bytes(str(transaction21),'utf-8')).signature.hex()
+        transaction21 = {**transaction21,**{"sig": signed21}}
+        number21 = H(bytes(str(transaction21),'utf-8')).hexdigest()
+        transaction21 = {**{"number": number21},**transaction21}
+        
+        self.txs_list.append(transaction21)        
+        
+        #Hash is bad 
+        coin_input22 = []
+        coin_input22.append({'number':transaction16['number'],'output':transaction16['output'][1]})
+        coin_input22.append({'number':transaction17['number'],'output':transaction17['output'][1]})
+        coin_output22 = [{"value": 12, "pubkey": pk5.encode(encoder=HexEncoder).hex()},
+                         {"value": 12, "pubkey": pk6.encode(encoder=HexEncoder).hex()}]
+    
+        transaction22 = {'input':coin_input22, 'output':coin_output22}
+        signed22 = sk5.sign(bytes(str(transaction22),'utf-8')).signature.hex()
+        transaction22 = {**transaction22,**{"sig": signed22}}
+        number22 = H(b"Bad").hexdigest()
+        transaction22 = {**{"number": number22},**transaction22}
+        
+        self.txs_list.append(transaction22)  
+        
+        
+        
+        
         coin_input18 = []
         coin_input18.append({'number':transaction16['number'],'output':transaction16['output'][1]})
         coin_input18.append({'number':transaction17['number'],'output':transaction17['output'][1]})
@@ -313,7 +379,7 @@ class Driver:
             
     def main(self):
         #Read the transactions
-        self.crafting_transactions()
+        #self.crafting_transactions()
         
         transactions = []    
         with open('transactions.json', 'r') as infile: 
@@ -331,7 +397,8 @@ class Driver:
         lock = threading.Lock()
         for i in range(nodes_num):
             Node(blockchains,i,self.pool,event,lock,channels).run()
-            
+        # Start malicious node    
+        Bad_Node(channels,self.pool,event,blockchains).run()    
         # Add to pool in 1s period  
         for i in range(len(transactions)-1):
             time.sleep(np.random.random(1)[0])
@@ -343,7 +410,7 @@ class Driver:
         while flag == False:
             flag = True
             if counter > 180:
-                print("Timeout in 3 minutes")
+                print("Timeout in 1 minutes")
                 break
             for i in blockchains:
                 if len(i) != 16:

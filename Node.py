@@ -38,19 +38,19 @@ class Node:
                 print("No transaction left")
                 time.sleep(1)
                 continue
-            if transaction["number"] in self.failverified:
+            #if transaction["number"] in self.failverified:
             #    self.pool.put(transaction)
             #    time.sleep(1)
-                continue
+            #    continue
             #print("start!")
             self.pool.put(transaction)
             self.node_lock.acquire()
-            #if (self.verify_transaction(self.blockchains[self.index],len(self.blockchains[self.index]),transaction) == False):
+            if (self.verify_transaction(self.blockchains[self.index],len(self.blockchains[self.index]),transaction) == False):
                 #self.failverified.add(transaction["number"])
             #    self.pool.put(transaction)
-            #    self.node_lock.release()
+                self.node_lock.release()
             #    time.sleep(1)
-            #    continue
+                continue
             block= {"tx":transaction, "prev":H(bytes(str(self.blockchains[self.index][-1:][0]),'utf-8')).hexdigest()}
             self.node_lock.release()
             #print(transaction["number"])
@@ -156,7 +156,7 @@ class Node:
     # Block is the one at index or to be added to the specificied index
     def verify_block(self,blockchain,index,block):
         for attrib in ["tx", "prev", "nonce", "pow"]:
-            if block.get(item, None) is None:
+            if block.get(attrib, None) is None:
                 print("missing block attributes")
                 return False
         if self.verify_transaction(blockchain,index,block["tx"]) == False:
