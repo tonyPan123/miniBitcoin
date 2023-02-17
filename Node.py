@@ -155,7 +155,10 @@ class Node:
     # Assume index >= 1    
     # Block is the one at index or to be added to the specificied index
     def verify_block(self,blockchain,index,block):
-        
+        for attrib in ["tx", "prev", "nonce", "pow"]:
+            if block.get(item, None) is None:
+                print("missing block attributes")
+                return False
         if self.verify_transaction(blockchain,index,block["tx"]) == False:
             return False
         prev = H(bytes(str(blockchain[index-1]),'utf-8')).hexdigest()
@@ -174,6 +177,13 @@ class Node:
     #Verifying a block, containing verifying a transaction
     def verify_transaction(self,blockchain,index,transaction):
         #Check for sign, equal in, equal out, and number(result of hash)
+        if transaction.get("input", None) is None or len(transaction["input"]) == 0:
+          print("invalid transaction format")
+          return False
+        if transaction.get("output", None) is None or transaction.get("sig", None) is None \
+           or transaction.get("number", None) is None:
+          print("invalid transaction format")
+          return False
         publicKey = transaction["input"][0]["output"]["pubkey"]
         verify_key = VerifyKey(bytes.fromhex(publicKey), encoder=HexEncoder)
         text = {"input":transaction["input"], "output":transaction["output"]}
@@ -190,12 +200,14 @@ class Node:
             return False
         
         # Check for input equal output
-        total_input=0
-        total_output=0
-        for coin_input in transaction["input"]:
-            total_input=total_input+coin_input["output"]["value"]
-        for coin_output in transaction["output"]:
-            total_output=total_output+coin_output["value"]
+        # total_input=0
+        # total_output=0
+        # for coin_input in transaction["input"]:
+        #     total_input=total_input+coin_input["output"]["value"]
+        total_input = sum([coin_input["output"]["value"] for coin_input in transaction["input"]])
+        # for coin_output in transaction["output"]:
+        #     total_output=total_output+coin_output["value"]
+        total_output = sum([coin_output["value"] for coin_output in transaction["output"]])
         
         if total_input != total_output:
             print("Input is not equal to output in the transaction")
@@ -204,6 +216,9 @@ class Node:
         
         #Check for input existence and double spend
         for coin_input in transaction["input"]:
+            if coin_input["output"].get("value", None) is None or coin_input["output"].get("pubkey", None) is None:
+                print("invalid transaction output format")
+                return False
             flag = False
             for i in range(index):
                 iter_transaction = blockchain[i]["tx"]
